@@ -5,20 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wordle</title>
     <!-- icon @ https://www.nytimes.com/games/wordle/index.html -->
-    <link rel="icon" href="wordle-icon.svg" type="image/x-icon">
+    <link rel="icon" href="" type="image/x-icon">
     <link rel="stylesheet" href="css/style.css">
-    <script src="js/app.js"></script>
 </head>
 <body>
-    <h1 id="title">Wordle</h1>
-    <hr>
-    <br>
-    <div id="game-container">
-        <div id="board"></div>
+    <div class="game-container">
+        <h1 id="title">Wordle</h1>
+        <hr>
         <br>
-        <h1 id="message">Start guessing</h1>
+        <div id="board">
+            <!-- <div class="board-row">
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+            </div> -->
+        </div>
+        <br>
+        <div id="message">Start guessing</div>
         <div id="keyboard">
-            <div class="keyboard-row">
+            <!-- <div class="keyboard-row">
                 <button data-key="Q">Q</button>
                 <button data-key="W">W</button>
                 <button data-key="E">E</button>
@@ -51,8 +56,9 @@
                 <button data-key="N">N</button>
                 <button data-key="M">M</button>
                 <button data-key="BACKSPACE">Backspace</button>
-            </div>
+            </div> -->
         </div>
     </div>    
+    <script src="js/app.js"></script>
 </body>
 </html>
