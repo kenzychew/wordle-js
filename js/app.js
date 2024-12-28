@@ -2,8 +2,8 @@ class Wordle {
     constructor() {
         this.wordLength = 3;
         this.maxAttempts = 4;
-        this.row = 0;
-        this.col = 0;
+        this.currentAttempt = 0;
+        this.currentPosition = 0;
         this.gameOver = false;
         this.word = "ACE"; // sample word, planning to include a wordlist
 
@@ -61,27 +61,95 @@ class Wordle {
             this.checkWord();
         } else if (key === "BACKSPACE") {
             this.deleteLetter();
-        } else if (/^[A-Z]$/.test(key) && this.col < this.wordLength) {
+        } else if (/^[A-Z]$/.test(key) && this.currentPosition < this.wordLength) {
             this.addLetter(key);
         }
     }
 
     addLetter(letter) {
-        if (this.col < this.wordLength) {
-            this.board[this.row][this.col].textContent = letter;
-            this.col++;
+        if (this.currentPosition < this.wordLength) {
+            this.board[this.currentAttempt][this.currentPosition].textContent = letter;
+            this.currentPosition++;
         }
     }
     
     deleteLetter() {
-        if (this.col > 0) {
-            this.col--;
-            this.board[this.row][this.col].textContent = "";
+        if (this.currentPosition > 0) {
+            this.currentPosition--;
+            this.board[this.currentAttempt][this.currentPosition].textContent = "";
         }
     }
 
+    // Check user's guess
     checkWord() {
-        console.log("Todo: Enter");
+        if (this.currentPosition !== this.wordLength) return; // ensures full word entered
+
+        const guess = this.secretWord();
+        if (guess.length !== this.wordLength) return; // ignores invalid attempts
+
+        this.updateTileColors(guess); // update tiles based on guess
+
+        // check if guess was correct
+        if (guess === this.word) {
+            this.showMessage("Congratulations, you won!");
+            this.gameOver = true;
+            return;
+        }
+
+        // check if game over
+        if (this.currentAttempt === this.maxAttempts -1) {
+            this.showMessage(`Better luck next time! The word was ${this.word}`);
+            this.gameOver = true;
+            return;
+        }
+        
+        // if incorrect, moves to next attempt
+        this.currentAttempt++;
+        this.currentPosition = 0;
+    }
+
+    // get current guess word
+    secretWord() {
+        return this.board[this.currentAttempt]
+            .map(tileEl => tileEl.textContent)
+            .join("");
+    }
+
+    // Update tile colors based on guess
+    updateTileColors(attempt) {
+        const tiles = this.board[this.currentAttempt];
+        const letterCount = {};
+
+        // count letters in target word
+        for (let letter of this.word) {
+            letterCount[letter] = (letterCount[letter] || 0) +1;
+        }
+
+        // first pass: mark correct letters green
+        for (let i = 0; i < this.wordLength; i++) {
+            if (attempt[i] === this.word[i]) {
+                tiles[i].className = "tile correct"; // Correct letter, correct position
+                letterCount[attempt[i]]--; // Decrement letter count
+            }
+        }
+        
+        // second pass: mark present letters yellow and absent letters gray
+        for (let i = 0; i < this.wordLength; i++) {
+            if (attempt[i] === this.word[i]) continue; // skips already correct letters
+            
+            if (letterCount[attempt[i]] >0) {
+                tiles[i].className = "tile present"; // present letter, wrong position
+                letterCount[attempt[i]]--; // Decrement letter count
+            } else {
+                tiles[i].className = "tile absent"; // absent letter
+            }
+        }
+
+    }
+
+    showMessage(msg) {
+        const displayMessage = document.getElementById("message");
+        displayMessage.textContent = msg;
     }
 }
 
