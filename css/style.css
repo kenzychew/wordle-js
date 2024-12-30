@@ -22,6 +22,7 @@ hr {
 #board {
     display: flex;
     flex-direction: column;
+    margin-bottom: 10px;
 }
 
 .board-row {
@@ -39,6 +40,7 @@ hr {
     border-radius: 4px;
     font-size: 2rem;
     font-weight: bold;
+    margin: 5px;
 
 }
 
@@ -80,5 +82,11 @@ hr {
     border-radius: 3px;
     text-transform: uppercase;
     cursor: pointer;
+}
+
+#message {
+    height: 30px;
+    margin: 10px 0;
+    font-weight: bold;
 }
 /* colors @ https://www.color-hex.com/color-palette/1012607 */

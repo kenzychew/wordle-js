@@ -1,15 +1,21 @@
 class Wordle {
     constructor() {
-        this.wordLength = 3;
-        this.maxAttempts = 4;
+        this.wordLength = 5;
+        this.maxAttempts = 6;
         this.currentAttempt = 0;
         this.currentPosition = 0;
         this.gameOver = false;
-        this.word = "ACE"; // sample word, planning to include a wordlist
-
+        this.wordList = ["APPLE", "BEACH", "CHEER"]
+        this.word = this.getRandomWord();
+        this.usedLetters = new Set();
         this.board = [];
         this.initializeBoard();
         this.initializeKeyboardListeners();
+    }
+
+    getRandomWord() {
+        const randomIndex = Math.floor(Math.random() * this.wordList.length);
+        return this.wordList[randomIndex];
     }
 
     initializeBoard() {
@@ -62,8 +68,15 @@ class Wordle {
         } else if (key === "BACKSPACE") {
             this.deleteLetter();
         } else if (/^[A-Z]$/.test(key) && this.currentPosition < this.wordLength) {
-            this.addLetter(key);
+            if (!this.isLetterUnusable(key)) {
+                this.addLetter(key);
+            }
         }
+    }
+
+    isLetterUnusable(letter) {
+        const button = document.querySelector(`button[data-key="${letter}"]`);
+        return button && button.style.backgroundColor === "rgb(120, 124, 127)"; // #787c7f in RGB
     }
 
     addLetter(letter) {
@@ -84,7 +97,7 @@ class Wordle {
     checkWord() {
         if (this.currentPosition !== this.wordLength) return; // ensures full word entered
 
-        const guess = this.secretWord();
+        const guess = this.getCurrentGuess();
         if (guess.length !== this.wordLength) return; // ignores invalid attempts
 
         this.updateTileColors(guess); // update tiles based on guess
@@ -109,7 +122,7 @@ class Wordle {
     }
 
     // get current guess word
-    secretWord() {
+    getCurrentGuess() {
         return this.board[this.currentAttempt]
             .map(tileEl => tileEl.textContent)
             .join("");
@@ -144,7 +157,27 @@ class Wordle {
                 tiles[i].className = "tile absent"; // absent letter
             }
         }
+        this.updateKeyboardColors(attempt);
+    }
 
+    updateKeyboardColors(attempt) {
+        for (let i = 0; i < this.wordLength; i++) {
+            const letter = attempt[i];
+            const button = document.querySelector(`button[data-key="${letter}"]`);
+            if (!button) continue;
+
+            if (attempt[i] === this.word[i]) {
+                button.style.backgroundColor = '#6ca965';
+                button.style.color = 'white';
+            } else if (this.word.includes(letter)) {
+                button.style.backgroundColor = '#c8b653';
+                button.style.color = 'white';
+            } else {
+                button.style.backgroundColor = '#787c7f';
+                button.style.color = 'white';
+                this.usedLetters.add(letter);
+            }
+        }
     }
 
     showMessage(msg) {
