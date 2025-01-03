@@ -112,9 +112,6 @@ hr {
         max-width: 100vb;
         position: relative;
     }
-    hr {
-        max-width: fit-content;
-    }
     #title {
         font-size: 2rem;
     }
