@@ -1633,11 +1633,7 @@ class Wordle {
         this.board = [];
         this.initializeBoard();
         this.initializeKeyboardListeners();
-    }
-
-    getRandomWord() {
-        const randomIndex = Math.floor(Math.random() * this.wordList.length);
-        return this.wordList[randomIndex];
+        this.initializeResetButton();
     }
 
     initializeBoard() {
@@ -1818,6 +1814,41 @@ class Wordle {
     showMessage(msg) {
         const displayMessage = document.getElementById("message");
         displayMessage.textContent = msg;
+    }
+
+    getRandomWord() {
+        const randomIndex = Math.floor(Math.random() * this.wordList.length);
+        return this.wordList[randomIndex];
+    }
+
+    initializeResetButton() {
+        const resetButton = document.getElementById("reset-button");
+        resetButton.addEventListener("click", () => this.resetGame());
+    }
+
+    // method to reset the game
+    resetGame() {
+        this.currentAttempt = 0;
+        this.currentPosition = 0;
+        this.gameOver = false;
+        this.word = this.getRandomWord();
+        this.usedLetters.clear();
+        this.board.forEach(row => {
+            row.forEach(tile => {
+                tile.textContent = ""; // clear tile content
+                tile.className = "tile"; // reset tile class
+            });
+        });
+        this.showMessage(""); // clears any messages
+        this.resetKeyboardColors(); // resets keyboard colors
+    }
+
+    resetKeyboardColors() {
+        const buttons = document.querySelectorAll("#keyboard button");
+        buttons.forEach(button => {
+            button.style.backgroundColor = "";
+            button.style.color = "";
+        });
     }
 }
 
