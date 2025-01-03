@@ -101,4 +101,11 @@ hr {
     margin: 10px 0;
     font-weight: bold;
 }
+
+@media (max-width: 768px) {
+    #keyboard button {
+        font-size: 0.8rem;
+        padding: 10px;
+    }
+}
 /* colors @ https://www.color-hex.com/color-palette/1012607 */
