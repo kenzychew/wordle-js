@@ -1,11 +1,11 @@
 class Wordle {
     constructor() {
-        this.wordLength = 5;
-        this.maxAttempts = 6;
-        this.currentAttempt = 0;
-        this.currentPosition = 0;
-        this.gameOver = false;
-        this.wordList = [
+        this.wordLength = 5; // Length of word to guess
+        this.maxAttempts = 6; // Maximum number of attempts
+        this.currentAttempt = 0; // Track how many guesses the player has made
+        this.currentPosition = 0; // Tracks current position (index) in the current word guess
+        this.gameOver = false; // Indicates if game is over
+        this.wordList = [ // List of words from which target word was chosen
             'CIGAR', 'REBUT', 'SISSY', 'HUMPH', 'AWAKE', 'BLUSH', 'FOCAL', 'EVADE',
             'NAVAL', 'SERVE', 'HEATH', 'DWARF', 'MODEL', 'KARMA', 'STINK', 'GRADE',
             'QUIET', 'BENCH', 'ABATE', 'FEIGN', 'MAJOR', 'DEATH', 'FRESH', 'CRUST',
@@ -296,7 +296,7 @@ class Wordle {
             'LOGIN', 'EJECT', 'ROGER', 'RIVAL', 'UNTIE', 'REFIT', 'AORTA', 'ADULT',
             'JUDGE', 'ROWER', 'ARTSY', 'RURAL', 'SHAVE'
           ];
-        this.guessList = [
+        this.guessList = [ // A list of valid guesses
             'AAHED', 'AALII', 'AARGH', 'AARTI', 'ABACA', 'ABACI', 'ABACS', 'ABAFT',
             'ABAKA', 'ABAMP', 'ABAND', 'ABASH', 'ABASK', 'ABAYA', 'ABBAS', 'ABBED',
             'ABBES', 'ABCEE', 'ABEAM', 'ABEAR', 'ABELE', 'ABERS', 'ABETS', 'ABIES',
@@ -1628,12 +1628,12 @@ class Wordle {
             'ZORRO', 'ZOUKS', 'ZOWEE', 'ZOWIE', 'ZULUS', 'ZUPAN', 'ZUPAS', 'ZUPPA',
             'ZURFS', 'ZUZIM', 'ZYGAL', 'ZYGON', 'ZYMES', 'ZYMIC'
           ];
-        this.word = this.getRandomWord();
-        this.usedLetters = new Set();
-        this.board = [];
-        this.initializeBoard();
-        this.initializeKeyboardListeners();
-        this.initializeResetButton();
+        this.word = this.getRandomWord(); // The actual target word selected randomly from wordList
+        this.usedLetters = new Set(); // Keeps track of letters that have already been used (for keyboard feedback)
+        this.board = []; // represents the gameboard (with 2D array to hold tiles)
+        this.initializeBoard(); // set up game board UI and add event listeners
+        this.initializeKeyboardListeners(); // adds event listeners for physical keyboard and on-screen buttons
+        this.initializeResetButton(); 
     }
     // Initializes game board with 6 rows for 6 guesses
     initializeBoard() {
