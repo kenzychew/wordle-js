@@ -1635,7 +1635,7 @@ class Wordle {
         this.initializeKeyboardListeners();
         this.initializeResetButton();
     }
-
+    // Initializes game board with 6 rows for 6 guesses
     initializeBoard() {
         const boardEl = document.getElementById("board");
 
@@ -1643,80 +1643,85 @@ class Wordle {
             const rowEl  = document.createElement("div");
             rowEl.className = "board-row";
             const rowTiles = [];
-
+            // create 5 tiles
             for (let j = 0; j < this.wordLength; j++) {
                 const tileEl = document.createElement("div");
-                tileEl.className = "tile";
+                tileEl.className = "tile"; // default tile class
                 rowEl.appendChild(tileEl);
                 rowTiles.push(tileEl);
             }
 
-            boardEl.appendChild(rowEl);
-            this.board.push(rowTiles);
+            boardEl.appendChild(rowEl); // add row to board
+            this.board.push(rowTiles); // add row to board array
         }
     }
-
-    initializeKeyboardListeners() {
+    // sets up event listeners for keyboard input (physical and on-screen buttons)
+    initializeKeyboardListeners() { // listen for key presses on keyboard
         document.addEventListener("keydown", (e) => this.handleKeyPress(e));
 
         const buttonEl = document.querySelectorAll("#keyboard button");
         buttonEl.forEach(button => {
             button.addEventListener("click", () => {
                 const key = button.getAttribute("data-key");
-                this.handleInput(key);
+                this.handleInput(key); // handle button clicks
             });
         });
     }
-
+    // initializes reset button
+    initializeResetButton() {
+        const resetButton = document.getElementById("reset-button");
+        resetButton.addEventListener("click", () => this.resetGame());
+    }
+    // Handles physical key presses (Enter, Backspace and alphabetic keys)
     handleKeyPress(e) {
         if (e.key === "Enter") {
             this.handleInput("ENTER");
         } else if (e.key === "Backspace") {
             this.handleInput("BACKSPACE");
-        } else if (/^[a-zA-Z]$/.test(e.key)) {
-            this.handleInput(e.key.toUpperCase());
+        } else if (/^[a-zA-Z]$/.test(e.key)) { // only handles alphabetic keys 
+            this.handleInput(e.key.toUpperCase()); // convert to uppercase and handle
         }
     }
-
+    // Handles user input (whether from physical keyboard or on-screen buttons)
     handleInput(key) {
-        if (this.gameOver) return;
+        if (this.gameOver) return; // ignore input if game over
         
         if (key === "ENTER") {
             const guess = this.getCurrentGuess();
             // Checks if guess is valid
             if (!this.isValidGuess(guess)) {
                 this.showMessage("Invalid word, please try again!");
-                return; // prevents invalid guesses from being entered
+                return; // prevents invalid guesses from being processed
             }
-            this.checkWord();
+            this.checkWord(); // process valid guess
         } else if (key === "BACKSPACE") {
             this.deleteLetter();
         } else if (/^[A-Z]$/.test(key) && this.currentPosition < this.wordLength) {
             if (!this.isLetterUnusable(key)) {
-                this.addLetter(key);
+                this.addLetter(key); // add a letter to the current guess
             }
         }
     }
-
+    // Validates whether the guessed word is in the word list
     isValidGuess(guess) {
         return this.wordList.includes(guess) || this.guessList.includes(guess);
     }
-
+    // Checks if a letter has already been marked as "unusable" (gray on keyboard)
     isLetterUnusable(letter) {
         const button = document.querySelector(`button[data-key="${letter}"]`);
         return button && button.style.backgroundColor === "rgb(120, 124, 127)"; // #787c7f in RGB
     }
-
+    // Adds a letter to the current guess (on the board)
     addLetter(letter) {
         if (this.currentPosition < this.wordLength) {
             this.board[this.currentAttempt][this.currentPosition].textContent = letter;
-            this.currentPosition++;
+            this.currentPosition++; // move to next position
         }
     }
-    
+    // Deletes the last entered letter
     deleteLetter() {
         if (this.currentPosition > 0) {
-            this.currentPosition--;
+            this.currentPosition--; // move to previous position
             this.board[this.currentAttempt][this.currentPosition].textContent = "";
         }
     }
@@ -1726,9 +1731,9 @@ class Wordle {
         if (this.currentPosition !== this.wordLength) return; // ensures full word entered
 
         const guess = this.getCurrentGuess();
-        if (guess.length !== this.wordLength) return; // ignores invalid attempts
+        if (guess.length !== this.wordLength) return; // prevent invalid guesses
 
-        this.updateTileColors(guess); // update tiles based on guess
+        this.updateTileColors(guess); // update tile colors based on guess
 
         // check if guess was correct
         if (guess === this.word) {
@@ -1737,17 +1742,17 @@ class Wordle {
             return;
         }
 
-        // message for valid but incorrect attempt
+        // if guess is incorrect but valid, continue game
         this.showMessage(`Close but no banana, lets try again!`);
 
-        // check if game over
+        // if max attempts reached, show answer and end game
         if (this.currentAttempt === this.maxAttempts -1) {
             this.showMessage(`Better luck next time! The word was ${this.word}`);
             this.gameOver = true;
             return;
         }
         
-        // if incorrect, moves to next attempt
+        // if guess was incorrect, move on to next attempt
         this.currentAttempt++;
         this.currentPosition = 0;
     }
@@ -1790,12 +1795,12 @@ class Wordle {
         }
         this.updateKeyboardColors(attempt);
     }
-
+    // Update on-screen keyboard button colors based on guessed letters
     updateKeyboardColors(attempt) {
         for (let i = 0; i < this.wordLength; i++) {
             const letter = attempt[i];
             const button = document.querySelector(`button[data-key="${letter}"]`);
-            if (!button) continue;
+            if (!button) continue; // skip if no button exists for the letter
 
             if (attempt[i] === this.word[i]) {
                 button.style.backgroundColor = '#6ca965';
@@ -1806,31 +1811,26 @@ class Wordle {
             } else {
                 button.style.backgroundColor = '#787c7f';
                 button.style.color = 'white';
-                this.usedLetters.add(letter);
+                this.usedLetters.add(letter); // track used letters
             }
         }
     }
-
+    // Displays a message to the player (win, lose, feedback)
     showMessage(msg) {
         const displayMessage = document.getElementById("message");
         displayMessage.textContent = msg;
     }
-
+    // Randomly picks a word from the word list
     getRandomWord() {
         const randomIndex = Math.floor(Math.random() * this.wordList.length);
         return this.wordList[randomIndex];
     }
-
-    initializeResetButton() {
-        const resetButton = document.getElementById("reset-button");
-        resetButton.addEventListener("click", () => this.resetGame());
-    }
-
-    // method to reset the game
+    
+    // Resets game state
     resetGame() {
-        this.currentAttempt = 0;
-        this.currentPosition = 0;
-        this.gameOver = false;
+        this.currentAttempt = 0; // reset attempts
+        this.currentPosition = 0; // reset position on board
+        this.gameOver = false; // reset game over flag
         this.word = this.getRandomWord();
         this.usedLetters.clear();
         this.board.forEach(row => {
@@ -1842,7 +1842,7 @@ class Wordle {
         this.showMessage(""); // clears any messages
         this.resetKeyboardColors(); // resets keyboard colors
     }
-
+    // Reset keyboard button colors to default
     resetKeyboardColors() {
         const buttons = document.querySelectorAll("#keyboard button");
         buttons.forEach(button => {
