@@ -109,4 +109,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Original Wordle game by Josh Wardle https://www.powerlanguage.co.uk/
 - Word list sourced from https://web.archive.org/web/20220210034340id_/https://www.powerlanguage.co.uk/wordle/main.e65ce0a5.js
-- Color scheme inspired by the original Wordle game sourced from https://www.color-hex.com/color-palette/1012607 */
+- Color scheme inspired by the original Wordle game sourced from https://www.color-hex.com/color-palette/1012607
