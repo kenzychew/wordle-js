@@ -10,7 +10,7 @@ This project is a clone of the popular word game Wordle, where players attempt t
 - 🟨 Yellow: Letter is in the word but in the wrong position
 - ⬜ Gray: Letter is not in the word
 
-![alt text]({7CB809F8-29FF-4FB0-919C-84A15CDE73EA}.png)
+![alt text]({E661A327-2310-4D17-BC5C-B4825BFF347A}.png)
 
 ## Features
 
