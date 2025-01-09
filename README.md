@@ -40,6 +40,8 @@ This project is a clone of the popular word game Wordle, where players attempt t
 
 ## How to Play
 
+The game uses standard Wordle rules: players get 6 attempts to guess a 5-letter word, with color-coded feedback after each guess.
+
 1. Start typing or use the on-screen keyboard to enter your guess
 2. Press 'Enter' to submit your guess
 3. The tiles will change color to provide feedback:
