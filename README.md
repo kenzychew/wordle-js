@@ -14,7 +14,6 @@ This project is a clone of the popular word game Wordle, where players attempt t
 
 ## Features
 
-- Responsive design that works on both desktop and mobile devices
 - Virtual keyboard with color feedback
 - Support for physical keyboard input
 - Valid word checking against a comprehensive word list
@@ -94,6 +93,7 @@ The game is built using vanilla JavaScript without any external dependencies, ma
 
 ## Future Improvements
 
+- Responsive design that works on both desktop and mobile devices
 - Add statistics tracking
 - Implement local storage for game state persistence
 - Add animations for tile flips and reveals
