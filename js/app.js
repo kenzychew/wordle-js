@@ -1697,20 +1697,14 @@ class Wordle {
         } else if (key === "BACKSPACE") {
             this.deleteLetter();
         } else if (/^[A-Z]$/.test(key) && this.currentPosition < this.wordLength) {
-            if (!this.isLetterUnusable(key)) {
                 this.addLetter(key); // add a letter to the current guess
-            }
         }
     }
     // Validates whether the guessed word is in the word list
     isValidGuess(guess) {
         return this.wordList.includes(guess) || this.guessList.includes(guess);
     }
-    // Checks if a letter has already been marked as "unusable" (gray on keyboard)
-    isLetterUnusable(letter) {
-        const button = document.querySelector(`button[data-key="${letter}"]`);
-        return button && button.style.backgroundColor === "rgb(120, 124, 127)"; // #787c7f in RGB
-    }
+
     // Adds a letter to the current guess (on the board)
     addLetter(letter) {
         if (this.currentPosition < this.wordLength) {
