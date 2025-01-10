@@ -31,7 +31,7 @@ function initializeGame() {
     initializeResetButton();
 }
 
-// Initialize game state
+// Initializes starting game state variables
 function initializeState() {
     currentAttempt = 0;
     currentPosition = 0;
@@ -47,7 +47,7 @@ function getRandomWord() {
     return wordList[randomIndex];
 }
 
-// Initialize the game board with 6 rows
+// Initializes the game board with 6 rows
 function initializeBoard() {
     boardEl.innerHTML = ''; // Clear existing board
 
