@@ -81,7 +81,7 @@ wordle-game/
 
 ## Development
 
-The game is built using vanilla JavaScript without any external dependencies, making it easy to modify and extend. The code is organized into a single `Wordle` class that handles all game logic and UI interactions.
+The game is built using vanilla JavaScript without any external dependencies, making it easy to modify and extend.
 
 ### Key Methods
 
