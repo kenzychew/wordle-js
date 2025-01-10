@@ -1,235 +1,242 @@
 import { WORD_LIST, GUESS_LIST } from "./words.js";
 
-class Wordle {
-    constructor() {
-        this.wordLength = 5; // Length of word to guess
-        this.maxAttempts = 6; // Maximum number of attempts
-        this.currentAttempt = 0; // Track how many guesses the player has made
-        this.currentPosition = 0; // Tracks current position (index) in the current word guess
-        this.gameOver = false; // Indicates if game is over
-        this.wordList = WORD_LIST;
-        this.guessList = GUESS_LIST;
-        this.word = this.getRandomWord(); // The actual target word selected randomly from wordList
-        this.usedLetters = new Set(); // Keeps track of letters that have already been used (for keyboard feedback)
-        this.board = []; // represents the gameboard (with 2D array to hold tiles)
-        this.initializeBoard(); // set up game board UI and add event listeners
-        this.initializeKeyboardListeners(); // adds event listeners for physical keyboard and on-screen buttons
-        this.initializeResetButton(); 
-    }
-    // Initializes game board with 6 rows for 6 guesses
-    initializeBoard() {
-        const boardEl = document.getElementById("board");
+/*-------------------------------- Constants --------------------------------*/
+const WORD_LENGTH = 5; // Length of word to guess
+const MAX_ATTEMPTS = 6; // Maximum number of attempts
+const wordList = WORD_LIST; // Correct words
+const guessList = GUESS_LIST; // Valid but incorrect words
 
-        for (let i = 0; i < this.maxAttempts; i++) {
-            const rowEl  = document.createElement("div");
-            rowEl.className = "board-row";
-            const rowTiles = [];
-            // create 5 tiles
-            for (let j = 0; j < this.wordLength; j++) {
-                const tileEl = document.createElement("div");
-                tileEl.className = "tile"; // default tile class
-                rowEl.appendChild(tileEl);
-                rowTiles.push(tileEl);
-            }
 
-            boardEl.appendChild(rowEl); // add row to board
-            this.board.push(rowTiles); // add row to board array
-        }
-    }
-    // sets up event listeners for keyboard input (physical and on-screen buttons)
-    initializeKeyboardListeners() { // listen for key presses on keyboard
-        document.addEventListener("keydown", (e) => this.handleKeyPress(e));
+/*---------------------------- Variables (state) ----------------------------*/
+let currentAttempt; // Tracks how many guesses the player has made
+let currentPosition; // Tracks current position (index) in the current word guess
+let gameOver; // Indicates if game is over
+let word; // The word selected from wordList
+let usedLetters; // Tracks keyboard letters that have been used
+let board; // Representation of game board with 2D array to hold tiles
 
-        const buttonEl = document.querySelectorAll("#keyboard button");
-        buttonEl.forEach(button => {
-            button.addEventListener("click", () => {
-                const key = button.getAttribute("data-key");
-                this.handleInput(key); // handle button clicks
-            });
-        });
-    }
-    // initializes reset button
-    initializeResetButton() {
-        const resetButton = document.getElementById("reset-button");
-        resetButton.addEventListener("click", () => this.resetGame());
-    }
-    // Handles physical key presses (Enter, Backspace and alphabetic keys)
-    handleKeyPress(e) {
-        if (e.key === "Enter") {
-            this.handleInput("ENTER");
-        } else if (e.key === "Backspace") {
-            this.handleInput("BACKSPACE");
-        } else if (/^[a-zA-Z]$/.test(e.key)) { // only handles alphabetic keys 
-            this.handleInput(e.key.toUpperCase()); // convert to uppercase and handle
-        }
-    }
-    // Handles user input (whether from physical keyboard or on-screen buttons)
-    handleInput(key) {
-        if (this.gameOver) return; // ignore input if game over
-        
-        if (key === "ENTER") {
-            const guess = this.getCurrentGuess();
-            // Checks if guess is valid
-            if (!this.isValidGuess(guess)) {
-                this.showMessage("Invalid word, please try again!");
-                return; // prevents invalid guesses from being processed
-            }
-            this.checkWord(); // process valid guess
-        } else if (key === "BACKSPACE") {
-            this.deleteLetter();
-        } else if (/^[A-Z]$/.test(key) && this.currentPosition < this.wordLength) {
-                this.addLetter(key); // add a letter to the current guess
-        }
-    }
-    // Validates whether the guessed word is in the word list
-    isValidGuess(guess) {
-        return this.wordList.includes(guess) || this.guessList.includes(guess);
-    }
 
-    // Adds a letter to the current guess (on the board)
-    addLetter(letter) {
-        if (this.currentPosition < this.wordLength) {
-            this.board[this.currentAttempt][this.currentPosition].textContent = letter;
-            this.currentPosition++; // move to next position
-        }
-    }
-    // Deletes the last entered letter
-    deleteLetter() {
-        if (this.currentPosition > 0) {
-            this.currentPosition--; // move to previous position
-            this.board[this.currentAttempt][this.currentPosition].textContent = "";
-        }
-    }
+/*------------------------ Cached Element References ------------------------*/
+const boardEl = document.getElementById("board");
+const messageEl = document.getElementById("message");
+const resetButtonEl = document.getElementById("reset-button");
 
-    // Check user's guess
-    checkWord() {
-        if (this.currentPosition !== this.wordLength) return; // ensures full word entered
 
-        const guess = this.getCurrentGuess();
-        if (guess.length !== this.wordLength) return; // prevent invalid guesses
+/*-------------------------------- Functions --------------------------------*/
 
-        this.updateTileColors(guess); // update tile colors based on guess
+function initializeGame() {
+    initializeState(); // Initializes game state variables
+    initializeBoard(); // Sets up game board UI and add event listeners
+    initializeKeyboardListeners(); // Adds event listeners for physical keyboard and on-screen buttons
+    initializeResetButton();
+}
 
-        // check if guess was correct
-        if (guess === this.word) {
-            this.showMessage(`Congratulations, you won! The word was ${this.word}`);
-            this.gameOver = true;
-            return;
+// Initialize game state
+function initializeState() {
+    currentAttempt = 0;
+    currentPosition = 0;
+    gameOver = false;
+    word = getRandomWord();
+    usedLetters = new Set();
+    board = [];
+}
+
+// Get a random word from the word list
+function getRandomWord() {
+    const randomIndex = Math.floor(Math.random() * wordList.length);
+    return wordList[randomIndex];
+}
+
+// Initialize the game board with 6 rows
+function initializeBoard() {
+    boardEl.innerHTML = ''; // Clear existing board
+
+    for (let i = 0; i < MAX_ATTEMPTS; i++) {
+        const rowEl = document.createElement("div");
+        rowEl.className = "board-row";
+        const rowTiles = [];
+        // create # tiles depending on WORD_LENGTH
+        for (let j = 0; j < WORD_LENGTH; j++) {
+            const tileEl = document.createElement("div");
+            tileEl.className = "tile"; // default tile class
+            rowEl.appendChild(tileEl); 
+            rowTiles.push(tileEl);
         }
 
-        // if guess is incorrect but valid, continue game
-        this.showMessage(`Close but no banana, lets try again!`);
-
-        // if max attempts reached, show answer and end game
-        if (this.currentAttempt === this.maxAttempts -1) {
-            this.showMessage(`Better luck next time! The word was ${this.word}`);
-            this.gameOver = true;
-            return;
-        }
-        
-        // if guess was incorrect, move on to next attempt
-        this.currentAttempt++;
-        this.currentPosition = 0;
-    }
-
-    // get current guess word
-    getCurrentGuess() {
-        return this.board[this.currentAttempt] // -> [<div>H</div>, <div>E</div>, <div>L</div>, <div>L</div>, <div>O</div>]
-            .map(tileEl => tileEl.textContent) // -> ["H", "E", "L", "L", "O"]
-            .join(""); // -> "HELLO"
-    }
-
-    // Update tile colors based on guess
-    updateTileColors(guess) {
-        const tiles = this.board[this.currentAttempt];
-        const letterCount = {}; 
-
-        // count letters in target word
-        for (let letter of this.word) {
-            letterCount[letter] = (letterCount[letter] || 0) +1;
-        }
-
-        // first pass: mark correct letters green
-        for (let i = 0; i < this.wordLength; i++) {
-            if (guess[i] === this.word[i]) {
-                tiles[i].className = "tile correct"; // Correct letter, correct position
-                letterCount[guess[i]]--; // decrement letter count
-            }
-        }
-        
-        // second pass: mark present letters yellow and absent letters gray
-        for (let i = 0; i < this.wordLength; i++) {
-            if (guess[i] === this.word[i]) continue; // skips already correct letters
-            
-            if (letterCount[guess[i]] >0) {
-                tiles[i].className = "tile present"; // present letter, wrong position
-                letterCount[guess[i]]--; // decrement letter count
-            } else {
-                tiles[i].className = "tile absent"; // absent letter
-            }
-        }
-        this.updateKeyboardColors(guess);
-    }
-    // Update on-screen keyboard button colors based on guessed letters
-    updateKeyboardColors(guess) {
-        for (let i = 0; i < this.wordLength; i++) {
-            const letter = guess[i];
-            const button = document.querySelector(`button[data-key="${letter}"]`);
-            if (!button) continue; // skip if no button exists for the letter
-
-            if (guess[i] === this.word[i]) {
-                button.style.backgroundColor = '#6ca965';
-                button.style.color = 'white';
-            } else if (this.word.includes(letter)) {
-                button.style.backgroundColor = '#c8b653';
-                button.style.color = 'white';
-            } else {
-                button.style.backgroundColor = '#787c7f';
-                button.style.color = 'white';
-                this.usedLetters.add(letter); // track used letters
-            }
-        }
-    }
-    // Displays a message to the player (win, lose, feedback)
-    showMessage(msg) {
-        const displayMessage = document.getElementById("message");
-        displayMessage.textContent = msg;
-    }
-    // Randomly picks a word from the word list
-    getRandomWord() {
-        const randomIndex = Math.floor(Math.random() * this.wordList.length);
-        return this.wordList[randomIndex];
-    }
-    
-    // Resets game state
-    resetGame() {
-        this.currentAttempt = 0; // reset attempts
-        this.currentPosition = 0; // reset position on board
-        this.gameOver = false; // reset game over flag
-        this.word = this.getRandomWord();
-        this.usedLetters.clear();
-        this.board.forEach(row => {
-            row.forEach(tile => {
-                tile.textContent = ""; // clear tile content
-                tile.className = "tile"; // reset tile class
-            });
-        });
-        this.showMessage(""); // clears any messages
-        this.resetKeyboardColors(); // resets keyboard colors
-    }
-    // Reset keyboard button colors to default
-    resetKeyboardColors() {
-        const buttons = document.querySelectorAll("#keyboard button");
-        buttons.forEach(button => {
-            button.style.backgroundColor = "";
-            button.style.color = "";
-        });
+        boardEl.appendChild(rowEl); // add row to board
+        board.push(rowTiles); // add row to board array
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    new Wordle();
-});
+// Handles physical key presses (Enter, Backspace and alphabetic keys)
+function handleKeyPress(e) {
+    if (e.key === "Enter") {
+        handleInput("ENTER");
+    } else if (e.key === "Backspace") {
+        handleInput("BACKSPACE");
+    } else if (/^[a-zA-Z]$/.test(e.key)) { // Handles only alphabets
+        handleInput(e.key.toUpperCase()); // Converts to uppercase and handle
+    }
+}
 
+// Handle user input (both physical keyboard and on-screen keyboard)
+function handleInput(key) {
+    if (gameOver) return; // Ignores input if game is over
 
+    if (key === "ENTER") { // Processes only valid guesses
+        const guess = getCurrentGuess();
+        if (!isValidGuess(guess)) {
+            showMessage("Invalid word, please try again!");
+            return;
+        }
+        checkWord();
+    } else if (key === "BACKSPACE") {
+        deleteLetter(); // Deletes the last entered letter
+    } else if (/^[A-Z]$/.test(key) && currentPosition < WORD_LENGTH) {
+        addLetter(key); // Adds letter to current guess
+    }
+}
 
+// Validates guess, must be in wordList or guessList to be valid
+function isValidGuess(guess) {
+    return wordList.includes(guess) || guessList.includes(guess);
+}
+
+// Get current guess
+function getCurrentGuess() { 
+    return board[currentAttempt] // -> [<div>H</div>, <div>E</div>, <div>L</div>, <div>L</div>, <div>O</div>]
+        .map(tileEl => tileEl.textContent) // -> ["H", "E", "L", "L", "O"]
+        .join(""); // -> "HELLO"
+}
+
+// Add a letter to the current guess
+function addLetter(letter) {
+    if (currentPosition < WORD_LENGTH) {
+        board[currentAttempt][currentPosition].textContent = letter;
+        currentPosition++;
+    }
+}
+
+// Delete the last letter
+function deleteLetter() {
+    if (currentPosition > 0) {
+        currentPosition--;
+        board[currentAttempt][currentPosition].textContent = "";
+    }
+}
+
+// Check the word against the target
+function checkWord() {
+    if (currentPosition !== WORD_LENGTH) return; // Ensures full word is entered
+
+    const guess = getCurrentGuess();
+    if (guess.length !== WORD_LENGTH) return; // Prevents invalid guesses
+
+    updateTileColors(guess); // Update tile colors based on guess
+
+    if (guess === word) { // If guess equal to word, win
+        showMessage(`Congratulations, you won! The word was ${word}`);
+        gameOver = true;
+        return;
+    }
+    // If guess is incorrect but valid, continue game
+    showMessage(`Close but no banana, lets try again!`);
+    // If max attempts reached, show word and end game
+    if (currentAttempt === MAX_ATTEMPTS - 1) {
+        showMessage(`Better luck next time! The word was ${word}`);
+        gameOver = true;
+        return;
+    }
+
+    currentAttempt++;
+    currentPosition = 0;
+}
+
+// Update tile colors based on guess
+function updateTileColors(guess) {
+    const tiles = board[currentAttempt];
+    const letterCount = {}; // Empty object to track letter counts
+
+    // Iterates through the word and gives a letter count
+    for (let letter of word) { // Undefined or zero
+        letterCount[letter] = (letterCount[letter] || 0) + 1;
+    }
+
+    // First pass: marks correct letters
+    for (let i = 0; i < WORD_LENGTH; i++) {
+        if (guess[i] === word[i]) {
+            tiles[i].className = "tile correct"; // Mark letter in correct position green
+            letterCount[guess[i]]--; // Decrements letter count
+        }
+    }
+
+    // Second pass: mark present and absent letters
+    for (let i = 0; i < WORD_LENGTH; i++) {
+        if (guess[i] === word[i]) continue; // Ignores already matched letters from first pass
+
+        if (letterCount[guess[i]] > 0) {
+            tiles[i].className = "tile present"; // Mark letter in wrong position yellow if there is still instance of the letter in word
+            letterCount[guess[i]]--; // Decrements letter count
+        } else {
+            tiles[i].className = "tile absent"; // Marks absent letters gray
+        }
+    }
+    updateKeyboardColors(guess);
+}
+
+// Update keyboard colors
+function updateKeyboardColors(guess) {
+    for (let i = 0; i < WORD_LENGTH; i++) {
+        const letter = guess[i];
+        const button = document.querySelector(`button[data-key="${letter}"]`);
+        if (!button) continue; // Skip if no button exists for the letter
+
+        if (guess[i] === word[i]) {
+            button.style.backgroundColor = '#6ca965';
+            button.style.color = 'white';
+        } else if (word.includes(letter)) {
+            button.style.backgroundColor = '#c8b653';
+            button.style.color = 'white';
+        } else {
+            button.style.backgroundColor = '#787c7f';
+            button.style.color = 'white';
+            usedLetters.add(letter); // Tracks used letters
+        }
+    }
+}
+
+// Reset keyboard colors
+function resetKeyboardColors() {
+    const buttons = document.querySelectorAll("#keyboard button");
+    buttons.forEach(button => {
+        button.style.backgroundColor = "";
+        button.style.color = "";
+    });
+}
+
+// Displays a message to the player (win, lose, feedback)
+function showMessage(msg) {
+    messageEl.textContent = msg;
+}
+
+/*----------------------------- Event Listeners -----------------------------*/
+// Initializes event listeners for keyboard input (physical and on-screen buttons)
+function initializeKeyboardListeners() { // Listens for keypresses on KB
+    document.addEventListener("keydown", handleKeyPress);
+
+    const buttonEl = document.querySelectorAll("#keyboard button");
+    buttonEl.forEach(button => {
+        button.addEventListener("click", () => {
+            const key = button.getAttribute("data-key");
+            handleInput(key); // Handles on-screen KB button clicks
+        });
+    });
+}
+
+// Initializes reset button
+function initializeResetButton() {
+    resetButtonEl.addEventListener("click", initializeGame);
+}
+
+// Initializes game when DOM content is loaded
+document.addEventListener("DOMContentLoaded", initializeGame);
