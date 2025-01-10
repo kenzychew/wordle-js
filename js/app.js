@@ -134,15 +134,15 @@ class Wordle {
 
     // get current guess word
     getCurrentGuess() {
-        return this.board[this.currentAttempt]
-            .map(tileEl => tileEl.textContent)
-            .join("");
+        return this.board[this.currentAttempt] // -> [<div>H</div>, <div>E</div>, <div>L</div>, <div>L</div>, <div>O</div>]
+            .map(tileEl => tileEl.textContent) // -> ["H", "E", "L", "L", "O"]
+            .join(""); // -> "HELLO"
     }
 
     // Update tile colors based on guess
-    updateTileColors(attempt) {
+    updateTileColors(guess) {
         const tiles = this.board[this.currentAttempt];
-        const letterCount = {};
+        const letterCount = {}; 
 
         // count letters in target word
         for (let letter of this.word) {
@@ -151,33 +151,33 @@ class Wordle {
 
         // first pass: mark correct letters green
         for (let i = 0; i < this.wordLength; i++) {
-            if (attempt[i] === this.word[i]) {
+            if (guess[i] === this.word[i]) {
                 tiles[i].className = "tile correct"; // Correct letter, correct position
-                letterCount[attempt[i]]--; // decrement letter count
+                letterCount[guess[i]]--; // decrement letter count
             }
         }
         
         // second pass: mark present letters yellow and absent letters gray
         for (let i = 0; i < this.wordLength; i++) {
-            if (attempt[i] === this.word[i]) continue; // skips already correct letters
+            if (guess[i] === this.word[i]) continue; // skips already correct letters
             
-            if (letterCount[attempt[i]] >0) {
+            if (letterCount[guess[i]] >0) {
                 tiles[i].className = "tile present"; // present letter, wrong position
-                letterCount[attempt[i]]--; // decrement letter count
+                letterCount[guess[i]]--; // decrement letter count
             } else {
                 tiles[i].className = "tile absent"; // absent letter
             }
         }
-        this.updateKeyboardColors(attempt);
+        this.updateKeyboardColors(guess);
     }
     // Update on-screen keyboard button colors based on guessed letters
-    updateKeyboardColors(attempt) {
+    updateKeyboardColors(guess) {
         for (let i = 0; i < this.wordLength; i++) {
-            const letter = attempt[i];
+            const letter = guess[i];
             const button = document.querySelector(`button[data-key="${letter}"]`);
             if (!button) continue; // skip if no button exists for the letter
 
-            if (attempt[i] === this.word[i]) {
+            if (guess[i] === this.word[i]) {
                 button.style.backgroundColor = '#6ca965';
                 button.style.color = 'white';
             } else if (this.word.includes(letter)) {
@@ -230,3 +230,6 @@ class Wordle {
 document.addEventListener("DOMContentLoaded", () => {
     new Wordle();
 });
+
+
+
